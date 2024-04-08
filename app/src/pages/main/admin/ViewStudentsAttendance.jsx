@@ -31,7 +31,7 @@ const ReviewAttendance = (props) => {
     const [query, setQuery] = useState({
         degree: '',
         semester: '',
-        department: '',
+        department: 'x',
 
     });
 
@@ -68,14 +68,14 @@ const ReviewAttendance = (props) => {
                 }
             })
             .then((res) => {
-                setFacultyDepartment(res[0].department)
+                setFacultyDepartment(res[0]?.department)
             })
     }, [BASEURL, facultyEmail, props.facultyEmail])
 
     useEffect(() => {
         // setAllStudents([])
         const degree = `studentDegree=${query.degree}`
-        const dep = `studentDepartment=${query.department.toString().trim()}`
+        const dep = `studentDepartment=${query?.department?.toString().trim()}`
         const cou = `studentCourse.courses.courseID=${selectedCourseID.toString().trim()}`
         const admiYear = `studentAdmissionYear=${selectedYear.toString().trim()}`
         const semester = `studentCourse.semester=${query.semester}`
@@ -84,7 +84,7 @@ const ReviewAttendance = (props) => {
         const miniurl = `${dep}&${admiYear}&${degree}&${semester}&${sGroup}&${cou}&${sSection}`
         if (isDateSelected) {
             const degree = `degree=${query.degree}`
-            const dep = `department=${facultyDepartment.toString().trim()}`
+            const dep = `department=${facultyDepartment?.toString().trim()}`
             const admiYear = `studentAdmissionYear=${selectedYear.toString().trim()}`
             const semester = `semester=${query.semester}`
             const sGroup = `studentGroup=${studentGroup.toString().trim()}`
@@ -166,7 +166,7 @@ const ReviewAttendance = (props) => {
     useEffect(() => {
         var url = `${BASEURL}/course/find`;
         // console.log("hi",selectedDegree)
-        if (query.degree !== '' || query.department !== '' || query.semester !== '') {
+        if (query?.degree !== '' || query?.department !== '' || query?.semester !== '') {
             // setQuery({ 'degree': selectedDegree })
             // setQuery("hi")
             url = `${BASEURL}/course/search`;
@@ -294,8 +294,7 @@ const ReviewAttendance = (props) => {
 
         if (!studentRollNoForSearch) {
             setStudentList(allStudents)
-            //   alert('h')
-            // console.log('h',allStudents)
+           
         }
 
         const newStudent = allStudents.filter(student => student.studentRoll === studentRollNoForSearch);
@@ -342,8 +341,11 @@ const ReviewAttendance = (props) => {
                     />
                     <label htmlFor="phd" className='text-white'>Ph.D</label> */}
                 </div>
-
+                <div className='text-white mt-1'>
+                   
+                </div>
                 <div className='mt-4'>
+                <h1 className='text-white mb-1'>Select department</h1>
                     <input
                         type="radio"
                         className=''
@@ -364,7 +366,7 @@ const ReviewAttendance = (props) => {
                         onChange={handleQueryChange}
                     />
                     <label htmlFor="std2" className='text-white mx-2'>ECE</label>
-                    <input
+                    {/* <input
                         type="radio"
                         className=''
                         name='department'
@@ -372,8 +374,8 @@ const ReviewAttendance = (props) => {
                         value={'HSS'}
                         onChange={handleQueryChange}
                     />
-                    <label htmlFor="std3" className='text-white mx-2'>HSS</label>
-                    <input
+                    <label htmlFor="std3" className='text-white mx-2'>HSS</label> */}
+                    {/* <input
                         type="radio"
                         className=''
                         name='department'
@@ -381,7 +383,7 @@ const ReviewAttendance = (props) => {
                         value={'MATHS&SCIENCE'}
                         onChange={handleQueryChange}
                     />
-                    <label htmlFor="std4" className='text-white mx-2'>MATHS&SCIENCE</label>
+                    <label htmlFor="std4" className='text-white mx-2'>MATHS&SCIENCE</label> */}
                 </div>
             </div>
 
@@ -568,58 +570,58 @@ const ReviewAttendance = (props) => {
                     >Search</button>
                 </div>
                 <h2 className='mb-2 text-white'>{alert}</h2>
-                
+
             </div>
 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:mx-8">
-                    {!isDateSelected && studentsList?.map(student => (
-                        <div
-                            key={student.studentEmail}
-                            className=" bg-white  p-2 rounded-md shadow-md cursor-pointer grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1"
-                            value={student.studentEmail}
-                            onClick={() => handleOpenModal(student.studentEmail, student.studentAdmissionYear)}
-                        // onClick={()=>handleStudentClick(student.studentEmail)}
-                        >
+                {!isDateSelected && studentsList?.map(student => (
+                    <div
+                        key={student.studentEmail}
+                        className=" bg-white  p-2 rounded-md shadow-md cursor-pointer grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1"
+                        value={student.studentEmail}
+                        onClick={() => handleOpenModal(student.studentEmail, student.studentAdmissionYear)}
+                    // onClick={()=>handleStudentClick(student.studentEmail)}
+                    >
 
-                            <div className='bg-blue-400 p-2 mb-2 rounded-md text-white grid grid-cols-2'>
-                                <div>
+                        <div className='bg-blue-400 p-2 mb-2 rounded-md text-white grid grid-cols-2'>
+                            <div>
                                 <h2>Name : {student.studentName}</h2>
                                 <h2>Roll No : {student.studentRoll}</h2>
                                 <h2>Degree : {student.studentDegree}</h2>
                                 <h2>Department : {student.studentDepartment}</h2>
-                                </div>
-                                <div className='flex justify-center items-center'>
-                                    <button className='bg-blue-800 rounded-md px-2 p-1 '>Details</button>
-                                </div>
                             </div>
-                            <div>
-                                <AttendanceCalculator email={student.studentEmail} semester={query.semester}/>
+                            <div className='flex justify-center items-center'>
+                                <button className='bg-blue-800 rounded-md px-2 p-1 '>Details</button>
                             </div>
-
                         </div>
-                    ))}
-
-                    {isDateSelected && studentListByDate?.map(student => (
-                        <div
-                            // key={student.studentEmail}
-                            className="bg-white p-4 rounded-md shadow-md cursor-pointer"
-                            value={student.studentEmail}
-                            onClick={() => handleOpenModal(student.studentEmail)}
-                        // onClick={()=>handleStudentClick(student.studentEmail)}
-                        >
-
-
-
-                            <h2>Roll No : {student.studentRollNo}</h2>
-                            <h2>Email : {student.studentEmail}</h2>
-                            {/* <h2>Department : {student.studentDepartment}</h2> */}
-                            {/* <h2>student.studentDegree</h2> */}
-
+                        <div>
+                            <AttendanceCalculator email={student.studentEmail} semester={query.semester} />
                         </div>
 
-                    ))}
-                </div>
+                    </div>
+                ))}
+
+                {isDateSelected && studentListByDate?.map(student => (
+                    <div
+                        // key={student.studentEmail}
+                        className="bg-white p-4 rounded-md shadow-md cursor-pointer"
+                        value={student.studentEmail}
+                        onClick={() => handleOpenModal(student.studentEmail)}
+                    // onClick={()=>handleStudentClick(student.studentEmail)}
+                    >
+
+
+
+                        <h2>Roll No : {student.studentRollNo}</h2>
+                        <h2>Email : {student.studentEmail}</h2>
+                        {/* <h2>Department : {student.studentDepartment}</h2> */}
+                        {/* <h2>student.studentDegree</h2> */}
+
+                    </div>
+
+                ))}
+            </div>
 
             <ShowStudentAttendance
                 isOpen={isModalOpen}

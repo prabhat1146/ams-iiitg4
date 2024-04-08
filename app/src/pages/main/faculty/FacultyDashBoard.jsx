@@ -81,6 +81,10 @@ const FacultyDashBoard = () => {
                 .then((res) => {
                     navigate('/')
                 })
+                .catch((error)=>{
+                    console.log(error)
+                    alert("Server error")
+                })
 
 
         }

@@ -146,6 +146,10 @@ const StudentDashboard = () => {
         .then((res) => {
           navigate('/')
         })
+        .catch((error)=>{
+          console.log(error)
+          alert("server error")
+        })
 
 
     }
