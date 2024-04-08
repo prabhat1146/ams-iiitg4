@@ -2,9 +2,7 @@
 // StudentSignUp.js
 import React, { useEffect, useState } from 'react';
 import { fetchData } from '../admin/SetFormData';
-import { Link, useNavigate } from 'react-router-dom';
 import ReactLoading from 'react-loading'
-import { isMobileDevice, generateDeviceFingerprint } from '../../deviceFingerPrint/DeviceFingerPrint';
 import axios from 'axios';
 
 const StudentEditProfile = (props) => {
@@ -38,6 +36,8 @@ const StudentEditProfile = (props) => {
 
 
     const BASEURL = process.env.REACT_APP_BASEURL
+
+    
 
 
     useEffect(() => {
@@ -141,7 +141,7 @@ const StudentEditProfile = (props) => {
 
     useEffect(() => {
         // Replace the API endpoint with your actual API endpoint to fetch courses
-        const apiUrl = `${BASEURL}/course/search?semester=${semester}&department=${Department}`;
+        const apiUrl = `${BASEURL}/course/search?semester=${semester}&degree=${degree}`;
 
         // Fetch courses from the database
         axios.get(apiUrl)
@@ -156,7 +156,7 @@ const StudentEditProfile = (props) => {
                 // console.log(coursesData);
             })
             .catch(error => console.error('Error fetching courses:', error));
-    }, [BASEURL, Department, semester]);
+    }, [BASEURL, degree, semester]);
 
 
     // const handleCourseChange = (courseID) => {
@@ -212,15 +212,18 @@ const StudentEditProfile = (props) => {
     const handleAddCourse = (e) => {
         // Perform any action on form submission, such as submitting attendance
         e.preventDefault();
-        if(window.confirm("Are you sure to add it?")){
+        if(window.confirm("Are you sure to add all these courses?")){
 
         }else{
             return ;
         }
+        // console.log(typeof addNewCourse)
         const url = `${BASEURL}/student/addNewCourses`;
+        // const courses=Array(addNewCourse).filter((course)=>course.semester===semester)
+        // console.log(addNewCourse)
         try {
             // console.log(courseData)
-            fetchData(url, addNewCourse, "Added", true);
+            fetchData(url, addNewCourse, "New course/s added", true);
         } catch (error) {
 
         }
@@ -420,6 +423,13 @@ const StudentEditProfile = (props) => {
        setAddressOKButtonText('Success')
             
     }
+
+    useEffect(()=>{
+        // setAddNewCourse([])
+        setSelectedCourses([])
+        // setAllCourses([])
+        // console.log('se')
+    },[semester])
 
     return (
         <div className="flex items-center justify-center h-5/6  bg-gradient-to-r from-blue-500 to-purple-500">
@@ -694,7 +704,7 @@ const StudentEditProfile = (props) => {
                         className='ml-2 mr-4'
                     />
                 </div>
-                <h1 className='text-white'>Your courses :</h1>
+                <h1 className='text-white'>My courses :</h1>
                 <div className='w-full bg-white px-4 p-1  rounded-md mt-4'>
                     
                     {
@@ -717,8 +727,8 @@ const StudentEditProfile = (props) => {
                 </div>
 
                 <div className="mb-2 w-full rounded-md ">
-                    <label className="block text-sm mb-1 text-white">
-                        Courses option :
+                    <label className="block text-sm m-4 text-white">
+                        Courses options :
                     </label>
                     <select
                         id="courseList"
@@ -730,7 +740,7 @@ const StudentEditProfile = (props) => {
                     >
                         {allCourses?.map((course) => (
                             <option value={JSON.stringify(course)}>
-                                {course.courseName}
+                                {course.courseName} ( {course.courseID} )
                             </option>
 
                         ))}
@@ -741,7 +751,7 @@ const StudentEditProfile = (props) => {
                         <ul className="list-disc pl-4">
                             {selectedCourses?.map((course, index) => (
                                 <li className="flex items-center">
-                                    <span>{course.courseName}</span>
+                                    <span>{course.courseName} ( {course.courseID} )</span>
                                     <button
                                         className="ml-2 text-red-500"
                                         onClick={() => handleRemoveSelectedCourse(index)}

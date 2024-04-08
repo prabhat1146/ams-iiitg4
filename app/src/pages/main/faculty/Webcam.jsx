@@ -10,6 +10,7 @@ const videoConstraints = {
 };
 
 const BASEURL = process.env.REACT_APP_BASEURL
+let isModelLoaded=false;
 
 const Cam = (props) => {
 
@@ -20,6 +21,7 @@ const Cam = (props) => {
   const [ofm, setofm] = useState(null);
   let cd = [];
   let rd = [];
+
   const [studentData, setStudentData] = useState([])
 
 
@@ -28,26 +30,36 @@ const Cam = (props) => {
   const [img, setImg] = useState(null);
 
   useEffect(() => {
-
-
+    let isModelLoaded = false;
+  
     const loadModelsAndDetectFaces = async () => {
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
-        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/models'),
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
-      ]);
-
-      console.log('Models loaded');
+      try {
+        console.log('Loading...');
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+          faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+          faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+          faceapi.nets.faceExpressionNet.loadFromUri('/models'),
+          faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
+        ]);
+  
+        console.log('Models loaded');
+        isModelLoaded = true;
+  
+        if (studentData?.length > 0) {
+          console.log('s', studentData);
+          // Perform actions dependent on models and studentData here
+        }
+      } catch (error) {
+        console.error('Error loading models:', error);
+        // Handle error loading models, such as displaying an error message to the user
+      }
     };
-
+  
     loadModelsAndDetectFaces();
-    if (studentData?.length > 0) {
-      console.log('s', studentData)
-      // setofm(new faceapi.FaceMatcher(studentData))
-    }
+  
   }, [studentData]);
+  
 
   useEffect(() => {
     console.log('p', props?.students)
@@ -79,15 +91,17 @@ const Cam = (props) => {
 
 
   }, [props])
+
   useEffect(() => {
 
     const detectFaces = async () => {
       if (webcamRef.current && webcamRef.current.video.readyState === 4) {
         const video = webcamRef.current.video
         // const video = document.getElementById('img')
-        // console.log('m', video)
+        console.log("detecting...")
         // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options());
         const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
+        // const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.2 })).withFaceLandmarks().withFaceDescriptors();
         if (!detections || detections?.length < 1) {
           return
         }
@@ -190,14 +204,14 @@ const Cam = (props) => {
     const intervalId = setInterval(detectFaces, 1000); // Adjust the interval as needed for performance
 
     return () => clearInterval(intervalId);
-  }, [cd, ofm, props.students, , webcamRef]);
+  }, [cd, ofm, props.students, webcamRef]);
 
-  const retake = () => {
-    setImg(webcamRef.current.getScreenshot());
+  // const retake = () => {
+  //   setImg(webcamRef.current.getScreenshot());
 
-    // setCurrentDescriptor(['d'])
-    // alert(currentDescriptor.lenght)
-  };
+  //   // setCurrentDescriptor(['d'])
+  //   // alert(currentDescriptor.lenght)
+  // };
 
   const setAttendanceByCourseID = (email, roll) => {
     let url = `${BASEURL}/attendance/makeAttendanceBycourseID`

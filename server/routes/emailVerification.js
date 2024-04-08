@@ -167,12 +167,12 @@ router.get('/verifyEmail', async (req, res) => {
                 var result = await collection2.updateOne({ email: email }, { $set: { isVerified: true } });
                 
             }
-            console.log(result)
+            // console.log(result)
             if(result){
                 
             }
-            console.log('m',result.modifiedCount)
-            if (result) {
+            // console.log('m',result?.modifiedCount)
+            if (result?.modifiedCount) {
                 res.status(200).send({ isEmailVerified: true });
             } else {
                 res.status(202).send({ isEmailVerified: false });

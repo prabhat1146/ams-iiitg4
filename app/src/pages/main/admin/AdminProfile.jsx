@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   const location = useLocation();
   const [remove, setRemove] = useState(false)
   const [add, setAdd] = useState(false)
-  const [verifyDevice, setVerifyDevice] = useState(false);
+  const [verifyFace, setVerifyFace] = useState(false);
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -63,35 +63,37 @@ const AdminDashboard = () => {
     setSelectedSection(section);
     setRemove(false)
     setAdd(false)
+    setVerifyFace(false)
   };
 
-  const handleNewAdmin = () => {
-    // alert('new')
-    if (accessType) {
-      setRemove(false)
-      setVerifyDevice(false)
-      setAdd(true)
-      setSelectedSection(null);
-    } else {
+  // const handleNewAdmin = () => {
+  //   // alert('new')
+  //   if (accessType) {
+  //     setRemove(false)
+  //     setVerifyFace(false)
+  //     setAdd(true)
+  //     setSelectedSection(null);
+  //   } else {
 
-      setAlert('Permission Denied')
-    }
-  }
-  const handleRemoveAdmin = () => {
-    if (accessType) {
-      setAdd(false)
-      setVerifyDevice(false)
-      setRemove(true)
-      setSelectedSection(null);
-    } else {
+  //     setAlert('Permission Denied')
+  //   }
+  // }
+  // const handleRemoveAdmin = () => {
+  //   if (accessType) {
+  //     setAdd(false)
+  //     setVerifyFace(false)
+  //     setRemove(true)
+  //     setSelectedSection(null);
+  //   } else {
 
-      setAlert('Permission Denied')
-    }
-  }
-  const handleVerifyDevice = () => {
+  //     setAlert('Permission Denied')
+  //   }
+  // }
+
+  const handleVerifyFace = () => {
     // alert('hi')
     console.log('hi')
-    setVerifyDevice(true)
+    setVerifyFace(!verifyFace)
     setAdd(false)
     setRemove(false)
     setSelectedSection(null);
@@ -146,7 +148,7 @@ const AdminDashboard = () => {
           {/* <p className="text-white">AccessType :{accessType}</p> */}
         </div>
         <div className='sticky left-full flex flex-col sm:flex-col md:flex-row lg:flex-row'>
-          <button className='bg-green-400  hover:bg-green-600  px-6 py-1 m-1 rounded-md ' onClick={handleVerifyDevice}>Verify Device</button>
+          <button className='bg-green-400  hover:bg-green-600  px-6 py-1 m-1 rounded-md ' onClick={handleVerifyFace}>Verify Face</button>
           {/* <button className='bg-green-400 hover:bg-green-600  px-6 py-1 m-1 rounded-md ' onClick={handleNewAdmin}>Add</button> */}
           {/* /<button className='bg-red-400 hover:bg-red-600  px-2.5 py-1  m-1   rounded-md ' onClick={handleRemoveAdmin}>Remove</button> */}
           <button className='bg-red-400 hover:bg-red-600  px-2.5 py-1  m-1   rounded-md ' onClick={handleLogOut}>Logout</button>
@@ -188,7 +190,7 @@ const AdminDashboard = () => {
       </nav>
       <p className='text-white m-auto'>{alert}</p>
       {editProfile && <EditProfile adminID={adminID}/>}
-      {verifyDevice && <VerifyDevice/>}
+      {verifyFace && <VerifyDevice/>}
       {add && <AddAdmin accessType={accessType} />}
       {remove && <RemoveAdmin accessType={accessType} />}
       <main className="container mx-auto flex-1 mt-8">
