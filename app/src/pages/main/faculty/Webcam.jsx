@@ -3,14 +3,19 @@ import * as faceapi from 'face-api.js';
 import Webcam from 'react-webcam';
 import { fetchData } from '../admin/SetFormData';
 
+let camFacingMode = 'environment';
 const videoConstraints = {
-  facingMode: 'user',
+  facingMode: camFacingMode,
   width: window.width,
   height: window.height
 };
 
+let markedPresent = []
+
+
+
 const BASEURL = process.env.REACT_APP_BASEURL
-let isModelLoaded=false;
+let isModelLoaded = false;
 
 const Cam = (props) => {
 
@@ -31,7 +36,7 @@ const Cam = (props) => {
 
   useEffect(() => {
     let isModelLoaded = false;
-  
+
     const loadModelsAndDetectFaces = async () => {
       try {
         console.log('Loading...');
@@ -42,10 +47,10 @@ const Cam = (props) => {
           faceapi.nets.faceExpressionNet.loadFromUri('/models'),
           faceapi.nets.ssdMobilenetv1.loadFromUri('/models')
         ]);
-  
+
         console.log('Models loaded');
         isModelLoaded = true;
-  
+
         if (studentData?.length > 0) {
           console.log('s', studentData);
           // Perform actions dependent on models and studentData here
@@ -55,11 +60,11 @@ const Cam = (props) => {
         // Handle error loading models, such as displaying an error message to the user
       }
     };
-  
+
     loadModelsAndDetectFaces();
-  
+
   }, [studentData]);
-  
+
 
   useEffect(() => {
     console.log('p', props?.students)
@@ -153,9 +158,7 @@ const Cam = (props) => {
                 console.log('first added')
                 return;
               }
-              if (!d) {
 
-              }
               const bm = myfm?.findBestMatch(d?.descriptor)
 
               if (!(bm?.distance <= 0.62)) {
@@ -184,12 +187,49 @@ const Cam = (props) => {
               console.log('td', tempdata)
               console.log('at', props.students[0])
               if (props.students[0].attendanceType === "ByCourseID") {
-                setAttendanceByCourseID(tempdata?.email.toString(), tempdata?.roll.toString())
+                let roll = markedPresent.find((roll) => roll.toString() === tempdata?.roll.toString())
+                if (roll?.length === 0 || roll?.length===undefined) {
+
+                  setAttendanceByCourseID(tempdata?.email.toString(), tempdata?.roll.toString(),'marked as present')
+                  markedPresent.push(tempdata?.roll.toString())
+                }else{
+                  setAttendanceByCourseID(tempdata?.email.toString(), tempdata?.roll.toString(),' Already marked as present')
+
+                }
               } else if (props.students[0].attendanceType === "BySectionID") {
-                setAttendanceBySectionID(tempdata?.email.toString(), tempdata?.roll.toString())
+                let roll = markedPresent.find((roll) => roll.toString() === tempdata?.roll.toString())
+                if (roll?.length === 0 || roll?.length===undefined) {
+
+                  setAttendanceBySectionID(tempdata?.email.toString(), tempdata?.roll.toString(),' marked as present')
+                  markedPresent.push(tempdata?.roll.toString())
+                }else{
+                  setAttendanceBySectionID(tempdata?.email.toString(), tempdata?.roll.toString(),' Already  marked as present')
+                }
+
               } else if (props.students[0].attendanceType === "ByGroupID") {
-                setAttendanceByGroupID(tempdata?.email.toString(), tempdata?.roll.toString())
+                let roll = markedPresent.find((roll) => roll.toString() === tempdata?.roll.toString())
+                if (roll?.length === 0 || roll?.length===undefined ) {
+
+                  setAttendanceByGroupID(tempdata?.email.toString(), tempdata?.roll.toString(),'marked as present')
+                  markedPresent.push(tempdata?.roll.toString())
+                }else{
+                  setAttendanceByGroupID(tempdata?.email.toString(), tempdata?.roll.toString(),' Already marked as present')
+                }
+
+                console.log('leng', roll?.length)
+                // setAttendanceByGroupID(tempdata?.email.toString(), tempdata?.roll.toString())
+
               }
+
+              // if (bm?.distance <= 0.62) {
+              //   if (props.students[0].attendanceType === "ByCourseID") {
+              //     setAttendanceByCourseID(tempdata?.email.toString(), tempdata?.roll.toString())
+              //   } else if (props.students[0].attendanceType === "BySectionID") {
+              //     setAttendanceBySectionID(tempdata?.email.toString(), tempdata?.roll.toString())
+              //   } else if (props.students[0].attendanceType === "ByGroupID") {
+              //     setAttendanceByGroupID(tempdata?.email.toString(), tempdata?.roll.toString())
+              //   }
+              // }
 
 
             }
@@ -213,7 +253,7 @@ const Cam = (props) => {
   //   // alert(currentDescriptor.lenght)
   // };
 
-  const setAttendanceByCourseID = (email, roll) => {
+  const setAttendanceByCourseID = (email, roll,message) => {
     let url = `${BASEURL}/attendance/makeAttendanceBycourseID`
     if (!email || !roll) {
       console.log('email:', email, " roll", roll)
@@ -230,10 +270,10 @@ const Cam = (props) => {
       studentRollNo: roll
     }
     console.log('attendace marked')
-    fetchData(url, data, `${roll} marked as present`, true)
+    fetchData(url, data, `${roll} ${message}`, true)
   }
-  const setAttendanceByGroupID = (email, roll) => {
-    let url = `${BASEURL}/attendance/makeAttendanceBycourseID`
+  const setAttendanceByGroupID = (email, roll,message) => {
+    let url = `${BASEURL}/attendance/makeAttendanceByGroupID`
     if (!email || !roll) {
       console.log('email:', email, " roll", roll)
       console.log('email and roll are required!')
@@ -247,13 +287,13 @@ const Cam = (props) => {
       degree: props.data.degree,
       studentEmail: email,
       studentRollNo: roll,
-      studentGroup: props.data.StudentGroup
+      studentGroup: props.data.studentGroup
     }
-    console.log('attendace marked')
-    fetchData(url, data, `${roll} marked as present`, true)
+    console.log('attendace marked',props)
+    fetchData(url, data, `${roll} ${message}`, true)
   }
-  const setAttendanceBySectionID = (email, roll) => {
-    let url = `${BASEURL}/attendance/makeAttendanceBycourseID`
+  const setAttendanceBySectionID = (email, roll,message) => {
+    let url = `${BASEURL}/attendance/makeAttendanceBySectionID`
     if (!email || !roll) {
       console.log('email:', email, " roll", roll)
       console.log('email and roll are required!')
@@ -270,27 +310,33 @@ const Cam = (props) => {
       studentSection: props.data.studentSection
     }
     console.log('attendace marked')
-    fetchData(url, data, `${roll} marked as present`, true)
+    fetchData(url, data, `${roll}${message}`, true)
+  }
+
+  const handleCameraMode = () => {
+    if (camFacingMode === 'user') {
+      camFacingMode = 'environment'
+    } else {
+      camFacingMode = 'user'
+    }
+
+    alert("hi")
   }
 
 
 
   return (
-    <div className='flex flex-row w-full'>
+    <div className='flex flex-col w-full'>
+      <div>
+        {/* <h1 onClick={handleCameraMode} className='mt-4 bg-green-950 w-32 text-white p-1 px-2 rounded-md'>switch camera</h1> */}
+      </div>
       <div className=' flex justify-center items-center w-11/12 bg-green-400 border border-2x relative'>
 
         <Webcam ref={webcamRef} video={true} audio={false} videoConstraints={videoConstraints} />
         <canvas className='absolute m-auto' ref={canvasRef}></canvas>
       </div>
-      {/* <div className='flex flex-col w-2/5'>
-        <div className='flex justify-center items-center'>
-          <img id='img' src={img} alt="" />
-          
-        </div>
-        <div className='flex justify-center'>
-          <button onClick={retake} className=' mt-8 px-4 p-1 rounded-md bg-slate-500'>Retake</button>
-        </div>
-      </div> */}
+
+
     </div>
   );
 };
